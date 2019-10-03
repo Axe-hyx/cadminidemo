@@ -34,7 +34,7 @@ void mev(Loop *l, Vertex &v1, Vertex &v2) {
   if (hep->next == hep) {
     delete hep;
     l->ledge = nne;
-    l->operator<<(cout) << endl;
+    //    l->operator<<(cout) << endl;
     return;
   }
   Halfedge *p = l->getEdge();
@@ -46,7 +46,7 @@ void mev(Loop *l, Vertex &v1, Vertex &v2) {
   nne->prev = p;
   pnext->prev = npe;
   npe->next = pnext;
-  l->operator<<(cout) << endl;
+  //l->operator<<(cout) << endl;
 }
 
 template <typename T> void linkafter(T *e1, T *e2) {
@@ -145,7 +145,8 @@ void mef(Loop *l, Vertex &v1, Vertex &v2, Face *&nface, Face *prevface) {
   linkafter(prevface, nface);
 }
 
-void kemr(Loop *l, Vertex &v1, Vertex &v2, Loop *&nloop) {
+// @param v1 outer loop, v2 inner loop, nloop no face
+void kemr(Loop *l, Vertex &v1, Vertex &v2, Loop *&nloop, Loop * innerloop) {
   Halfedge *v1in, *v1out;
   Halfedge *v2in, *v2out;
   Halfedge *v12, *v21;
@@ -162,21 +163,15 @@ void kemr(Loop *l, Vertex &v1, Vertex &v2, Loop *&nloop) {
     p = p->next;
   }
   v1in = v12->prev;
-  v1in->operator<<(cout) << endl;
   v1out = v21->next;
-  v1out->operator<<(cout) << endl;
   v2out = v12->next;
   v2in = v21->prev;
-  v2in->operator<<(cout) << endl;
-  v2out->operator<<(cout) << endl;
   linkafter(v1in, v1out);
   linkafter(v2in, v2out);
 
   nloop = new Loop();
-  nloop->lface = l->getFace();
   l->ledge = v1in;
-  l->operator<<(cout)<<endl;
   nloop->ledge= v2in;
-  nloop->operator<<(cout)<<endl;
-  linkafter(l, nloop);
+  
+  linkafter(l, innerloop);
 }

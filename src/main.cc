@@ -1,6 +1,6 @@
 #include "operator.h"
 
-Face *f0, *f1, *f2, *f3, *f4, *f5, *f6;
+Face *f0, *f1, *f2, *f3, *f4, *f5, *f6, *f7, *f8, *f9, *f10;
 Solids *s;
 Vertex v0(0, 0, 0);
 Vertex v1(3, 0, 0);
@@ -16,7 +16,12 @@ Vertex v9(2, 1, 3);
 Vertex v10(2, 2, 3);
 Vertex v11(1, 2, 3);
 
-Loop *lp0, *lp1, *lp2, *lp3, *lp4, *lp5, *lp6;
+Vertex v12(1, 1, 0);
+Vertex v13(2, 1, 0);
+Vertex v14(2, 2, 0);
+Vertex v15(1, 2, 0);
+
+Loop *lp0, *lp1, *lp2, *lp3, *lp4, *lp5, *lp6, *lp7;
 
 void testcube() {
   mvfs(s, v0, lp0);
@@ -54,9 +59,8 @@ void cases() {
   mev(lp5, v11, v10);
   mev(lp5, v10, v9);
   mev(lp5, v9, v8);
+  // TODO: fix face problem, wrong f6 face here
   mef(lp5, v11, v8, f6, f5);
-
-  kemr(lp5, v7, v11, lp6);
 
   /* problem in this steps
   mev(lp5, v7, v11);
@@ -65,6 +69,18 @@ void cases() {
   mev(lp5, v11, v8);
   mef(lp5, v8, v9, f6, f5);
   */
+
+  lp6 = f6->floop;
+  kemr(lp5, v7, v11, lp7, lp6);
+
+  mev(lp7, v8, v12);
+  mev(lp7, v9, v13);
+  mev(lp7, v10, v14);
+  mev(lp7, v11, v15);
+  mef(lp7, v15, v12, f7, f6);
+  mef(lp7, v12, v13, f8, f7);
+  mef(lp7, v13, v14, f9, f8);
+  mef(lp7, v14, v15, f10, f9);
 }
 
 int main() {
