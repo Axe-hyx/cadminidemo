@@ -16,7 +16,7 @@ Vertex v9(2, 1, 3);
 Vertex v10(2, 2, 3);
 Vertex v11(1, 2, 3);
 
-Loop *lp0, *lp1, *lp2, *lp3, *lp4, *lp5;
+Loop *lp0, *lp1, *lp2, *lp3, *lp4, *lp5, *lp6;
 
 void testcube() {
   mvfs(s, v0, lp0);
@@ -55,6 +55,8 @@ void cases() {
   mev(lp5, v10, v9);
   mev(lp5, v9, v8);
   mef(lp5, v11, v8, f6, f5);
+
+  kemr(lp5, v7, v11, lp6);
 
   /* problem in this steps
   mev(lp5, v7, v11);

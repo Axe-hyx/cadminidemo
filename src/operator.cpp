@@ -26,7 +26,6 @@ void mkpair(Halfedge *&he1, Halfedge *&he2, Vertex &v1, Vertex &v2) {
   he2->prev = he1;
 }
 
-
 // @param v1 in loop, v2 outward
 void mev(Loop *l, Vertex &v1, Vertex &v2) {
   Halfedge *hep = l->getEdge();
@@ -50,12 +49,11 @@ void mev(Loop *l, Vertex &v1, Vertex &v2) {
   l->operator<<(cout) << endl;
 }
 
-template<typename T>
-void linkafter(T *e1, T *e2) {
+template <typename T> void linkafter(T *e1, T *e2) {
   e1->next = e2;
   e2->prev = e1;
 }
-void mef(Loop *l, Vertex &v1, Vertex &v2, Face *&nface, Face*prevface) {
+void mef(Loop *l, Vertex &v1, Vertex &v2, Face *&nface, Face *prevface) {
   int size = 512;
   Halfedge *npe, *nne;
   mkpair(nne, npe, v1, v2);
@@ -81,8 +79,8 @@ void mef(Loop *l, Vertex &v1, Vertex &v2, Face *&nface, Face*prevface) {
     v2in = v2in->next;
   }
   Halfedge *p = v2in;
-  //v1out->operator<<(cout)<<endl;;
-  //v2in->operator<<(cout)<<endl;;
+  // v1out->operator<<(cout)<<endl;;
+  // v2in->operator<<(cout)<<endl;;
   while (p != v1out) { // 去除多环
     if (cnt[p->getv2()->_id] > 0) {
       Halfedge *rptr = p;
@@ -90,20 +88,20 @@ void mef(Loop *l, Vertex &v1, Vertex &v2, Face *&nface, Face*prevface) {
         rptr = rptr->prev;
       }
       Halfedge *p1 = rptr->prev, *p2 = p->next;
-      //p1->operator<<(cout) << endl;
-      //p2->operator<<(cout) << endl;
+      // p1->operator<<(cout) << endl;
+      // p2->operator<<(cout) << endl;
       linkafter(p1, p2);
       Halfedge *t = p->next, *tnext;
       while (t && t->getv2() != p->getv2()) {
         cnt[t->getv2()->_id] = 0;
         t = t->next;
       }
-      //p->operator<<(cout) << endl;
-      //rptr->operator<<(cout) << endl;
-      //t->operator<<(cout) << endl;
+      // p->operator<<(cout) << endl;
+      // rptr->operator<<(cout) << endl;
+      // t->operator<<(cout) << endl;
       tnext = t->next;
-      //tnext->operator<<(cout) << endl;
-      //char c = getchar();
+      // tnext->operator<<(cout) << endl;
+      // char c = getchar();
 
       linkafter(p, tnext);
       linkafter(t, rptr);
@@ -119,7 +117,7 @@ void mef(Loop *l, Vertex &v1, Vertex &v2, Face *&nface, Face*prevface) {
     tmp = tmp->next;
   }
   earlyv1out = tmp;
-  while(*earlyv1out->getv1()!=v1){
+  while (*earlyv1out->getv1() != v1) {
     earlyv1out = earlyv1out->next;
   }
   tmp = earlyv1out;
@@ -131,22 +129,54 @@ void mef(Loop *l, Vertex &v1, Vertex &v2, Face *&nface, Face*prevface) {
   Halfedge *st, *ed;
   st = lastv2in->next;
   ed = earlyv1out->prev;
-  //earlyv1out->operator<<(cout) << endl;
-  //st->operator<<(cout) << endl;
-  //lastv2in->operator<<(cout) << endl;
-  //ed->operator<<(cout) << endl;
+  // earlyv1out->operator<<(cout) << endl;
+  // st->operator<<(cout) << endl;
+  // lastv2in->operator<<(cout) << endl;
+  // ed->operator<<(cout) << endl;
   linkafter(ed, nne);
-  linkafter(nne,st);
+  linkafter(nne, st);
 
   linkafter(lastv2in, npe);
   linkafter(npe, earlyv1out);
   l->ledge = npe;
-  nl->ledge = nne;// 最简
-  l->operator<<(cout)<<"FACE"<<endl;
-  nl->operator<<(cout)<<"FACE"<<endl;
+  nl->ledge = nne; // 最简
+  l->operator<<(cout) << "FACE" << endl;
+  nl->operator<<(cout) << "FACE" << endl;
   linkafter(prevface, nface);
 }
 
-void kemr(Loop *l, Vertex &v1, Vertx &v2, Loop *&nloop) {
+void kemr(Loop *l, Vertex &v1, Vertex &v2, Loop *&nloop) {
+  Halfedge *v1in, *v1out;
+  Halfedge *v2in, *v2out;
+  Halfedge *v12, *v21;
+  Halfedge *p = l->ledge;
+  bool st = true;
+  while (st || p != l->ledge) {
+    if (*p->getv1() == v1 && *p->getv2() == v2) {
+      v12 = p;
+    }
+    if (*p->getv2() == v1 && *p->getv1() == v2) {
+      v21 = p;
+    }
+    st = false;
+    p = p->next;
+  }
+  v1in = v12->prev;
+  v1in->operator<<(cout) << endl;
+  v1out = v21->next;
+  v1out->operator<<(cout) << endl;
+  v2out = v12->next;
+  v2in = v21->prev;
+  v2in->operator<<(cout) << endl;
+  v2out->operator<<(cout) << endl;
+  linkafter(v1in, v1out);
+  linkafter(v2in, v2out);
 
+  nloop = new Loop();
+  nloop->lface = l->getFace();
+  l->ledge = v1in;
+  l->operator<<(cout)<<endl;
+  nloop->ledge= v2in;
+  nloop->operator<<(cout)<<endl;
+  linkafter(l, nloop);
 }
