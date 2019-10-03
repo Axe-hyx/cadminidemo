@@ -90,6 +90,8 @@ void mef(Loop *l, Vertex &v1, Vertex &v2, Face *&nface, Face*prevface) {
         rptr = rptr->prev;
       }
       Halfedge *p1 = rptr->prev, *p2 = p->next;
+      //p1->operator<<(cout) << endl;
+      //p2->operator<<(cout) << endl;
       linkafter(p1, p2);
       Halfedge *t = p->next, *tnext;
       while (t && t->getv2() != p->getv2()) {
@@ -129,6 +131,10 @@ void mef(Loop *l, Vertex &v1, Vertex &v2, Face *&nface, Face*prevface) {
   Halfedge *st, *ed;
   st = lastv2in->next;
   ed = earlyv1out->prev;
+  //earlyv1out->operator<<(cout) << endl;
+  //st->operator<<(cout) << endl;
+  //lastv2in->operator<<(cout) << endl;
+  //ed->operator<<(cout) << endl;
   linkafter(ed, nne);
   linkafter(nne,st);
 
@@ -141,3 +147,6 @@ void mef(Loop *l, Vertex &v1, Vertex &v2, Face *&nface, Face*prevface) {
   linkafter(prevface, nface);
 }
 
+void kemr(Loop *l, Vertex &v1, Vertx &v2, Loop *&nloop) {
+
+}

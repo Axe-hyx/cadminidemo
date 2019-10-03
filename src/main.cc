@@ -1,6 +1,6 @@
 #include "operator.h"
 
-Face *f0, *f1, *f2, *f3, *f4, *f5;
+Face *f0, *f1, *f2, *f3, *f4, *f5, *f6;
 Solids *s;
 Vertex v0(0, 0, 0);
 Vertex v1(3, 0, 0);
@@ -53,7 +53,16 @@ void cases() {
   mev(lp5, v7, v11);
   mev(lp5, v11, v10);
   mev(lp5, v10, v9);
+  mev(lp5, v9, v8);
+  mef(lp5, v11, v8, f6, f5);
+
+  /* problem in this steps
+  mev(lp5, v7, v11);
+  mev(lp5, v11, v10);
+  mev(lp5, v10, v9);
   mev(lp5, v11, v8);
+  mef(lp5, v8, v9, f6, f5);
+  */
 }
 
 int main() {
