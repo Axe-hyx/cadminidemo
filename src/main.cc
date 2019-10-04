@@ -23,7 +23,7 @@ Vertex v15(1, 2, 0);
 
 Loop *lp0, *lp1, *lp2, *lp3, *lp4, *lp5, *lp6, *lp7;
 
-void testcube() {
+void test_2dcube() {
   mvfs(s, v0, lp0);
   f0 = s->sface;
   mev(lp0, v0, v1);
@@ -39,7 +39,8 @@ void testcube() {
   mef(lp0, v5, v6, f4, f3);
   mef(lp0, v7, v6, f5, f4);
 }
-void cases() {
+
+void construct_cube() {
   mvfs(s, v0, lp0);
   f0 = s->sface;
   mev(lp0, v0, v1);
@@ -60,8 +61,8 @@ void cases() {
   mev(lp5, v10, v9);
   mev(lp5, v9, v8);
   // TODO: fix face problem, wrong f6 face here
-  mef(lp5, v11, v8, f6, f5);
-
+  mef(lp5, v8, v11, f6, f5);
+  lp7 = f6->floop;
   /* problem in this steps
   mev(lp5, v7, v11);
   mev(lp5, v11, v10);
@@ -69,9 +70,7 @@ void cases() {
   mev(lp5, v11, v8);
   mef(lp5, v8, v9, f6, f5);
   */
-
-  lp6 = f6->floop;
-  kemr(lp5, v7, v11, lp7, lp6);
+  kemr(lp5, v7, v11, lp6, lp5);
 
   mev(lp7, v8, v12);
   mev(lp7, v9, v13);
@@ -81,10 +80,13 @@ void cases() {
   mef(lp7, v12, v13, f8, f7);
   mef(lp7, v13, v14, f9, f8);
   mef(lp7, v14, v15, f10, f9);
+  kfmrh(f1, f10);
+  s->operator<<(cout);
+  return;
 }
 
 int main() {
-  cases();
+  construct_cube();
   // testcube();
   return 0;
 }

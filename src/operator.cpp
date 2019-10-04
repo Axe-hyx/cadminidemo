@@ -8,6 +8,8 @@ void mvfs(Solids *&s, Vertex &v, Loop *&nloop) {
   Halfedge *nhe = new Halfedge(&v, &v);
   s->sface = nf;
   nf->fsolid = s;
+  nf->next = nf;
+  nf->prev = nf;
   nf->floop = nl;
   nl->lface = nf;
 
@@ -34,7 +36,6 @@ void mev(Loop *l, Vertex &v1, Vertex &v2) {
   if (hep->next == hep) {
     delete hep;
     l->ledge = nne;
-    //    l->operator<<(cout) << endl;
     return;
   }
   Halfedge *p = l->getEdge();
@@ -46,13 +47,8 @@ void mev(Loop *l, Vertex &v1, Vertex &v2) {
   nne->prev = p;
   pnext->prev = npe;
   npe->next = pnext;
-  //l->operator<<(cout) << endl;
 }
 
-template <typename T> void linkafter(T *e1, T *e2) {
-  e1->next = e2;
-  e2->prev = e1;
-}
 void mef(Loop *l, Vertex &v1, Vertex &v2, Face *&nface, Face *prevface) {
   int size = 512;
   Halfedge *npe, *nne;
@@ -79,8 +75,6 @@ void mef(Loop *l, Vertex &v1, Vertex &v2, Face *&nface, Face *prevface) {
     v2in = v2in->next;
   }
   Halfedge *p = v2in;
-  // v1out->operator<<(cout)<<endl;;
-  // v2in->operator<<(cout)<<endl;;
   while (p != v1out) { // 去除多环
     if (cnt[p->getv2()->_id] > 0) {
       Halfedge *rptr = p;
@@ -88,20 +82,13 @@ void mef(Loop *l, Vertex &v1, Vertex &v2, Face *&nface, Face *prevface) {
         rptr = rptr->prev;
       }
       Halfedge *p1 = rptr->prev, *p2 = p->next;
-      // p1->operator<<(cout) << endl;
-      // p2->operator<<(cout) << endl;
       linkafter(p1, p2);
       Halfedge *t = p->next, *tnext;
       while (t && t->getv2() != p->getv2()) {
         cnt[t->getv2()->_id] = 0;
         t = t->next;
       }
-      // p->operator<<(cout) << endl;
-      // rptr->operator<<(cout) << endl;
-      // t->operator<<(cout) << endl;
       tnext = t->next;
-      // tnext->operator<<(cout) << endl;
-      // char c = getchar();
 
       linkafter(p, tnext);
       linkafter(t, rptr);
@@ -140,13 +127,13 @@ void mef(Loop *l, Vertex &v1, Vertex &v2, Face *&nface, Face *prevface) {
   linkafter(npe, earlyv1out);
   l->ledge = npe;
   nl->ledge = nne; // 最简
-  l->operator<<(cout) << "FACE" << endl;
-  nl->operator<<(cout) << "FACE" << endl;
+  // l->operator<<(cout) << "FACE" << endl;
+  // nl->operator<<(cout) << "FACE" << endl;
   linkafter(prevface, nface);
 }
 
 // @param v1 outer loop, v2 inner loop, nloop no face
-void kemr(Loop *l, Vertex &v1, Vertex &v2, Loop *&nloop, Loop * innerloop) {
+void kemr(Loop *l, Vertex &v1, Vertex &v2, Loop *&nloop, Loop *innerloop) {
   Halfedge *v1in, *v1out;
   Halfedge *v2in, *v2out;
   Halfedge *v12, *v21;
@@ -171,7 +158,17 @@ void kemr(Loop *l, Vertex &v1, Vertex &v2, Loop *&nloop, Loop * innerloop) {
 
   nloop = new Loop();
   l->ledge = v1in;
-  nloop->ledge= v2in;
+  nloop->ledge = v2in;
+  linkafter(l, nloop);
+}
+
+void kfmrh(Face *f1, Face *f2) {
+  Loop *l1 = f1->getLoop(), *l2 = f2->getLoop();
+  f2->prev->next = nullptr;
+  while (l1->next) {
+    l1 = l1->next;
+  }
   
-  linkafter(l, innerloop);
+  linkafter(l1, l2);
+  free(f2);
 }

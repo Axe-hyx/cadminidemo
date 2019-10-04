@@ -6,6 +6,11 @@ class Loop;
 class Halfedge;
 class Vertex;
 #include <iostream>
+template <typename T> void linkafter(T *e1, T *e2) {
+  e1->next = e2;
+  e2->prev = e1;
+}
+
 using namespace std;
 class Vertex {
 public:
@@ -49,18 +54,6 @@ public:
   }
 };
 
-class Solids {
-public:
-  Solids *next, *prev;
-  Face *sface;
-  Solids();
-
-  Solids *getNext() { return next; }
-  Solids *getPrev() { return prev; }
-  Face *getFace() { return sface; }
-
-  Solids *mvfs();
-};
 
 class Halfedge {
 public:
@@ -96,12 +89,14 @@ public:
   Face *getFace() { return lface; }
   Halfedge *getEdge() { return ledge; }
   ostream &operator<<(ostream &o) {
+    cout<<"\t";
     ledge->operator<<(o);
     Halfedge *p = ledge->next;
     while (p && p != ledge) {
       p->operator<<(o);
       p = p->next;
     }
+    cout<<endl;
     return o;
   }
 };
@@ -117,14 +112,39 @@ public:
   Solids *getSolid() { return fsolid; }
   Loop *getLoop() { return floop; }
   ostream &operator<<(ostream &o) {
+    static int i = 0;
+    cout<<"Face:"<<i++<<endl;
     floop->operator<<(o);
     Loop *p = floop->next;
     while (p && p != floop) {
       p->operator<<(o);
       p = p->next;
     }
+    cout<<endl;
     return o;
   }
+};
+class Solids {
+public:
+  Solids *next, *prev;
+  Face *sface;
+  Solids();
+
+  Solids *getNext() { return next; }
+  Solids *getPrev() { return prev; }
+  Face *getFace() { return sface; }
+  ostream &operator<<(ostream &o) {
+    sface->operator<<(o);
+    Face *p = sface->next;
+    while (p && p != sface) {
+      p->operator<<(o);
+      p = p->next;
+    }
+
+    return o;
+  }
+
+  Solids *mvfs();
 };
 
 #endif
