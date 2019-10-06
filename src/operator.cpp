@@ -168,7 +168,10 @@ void kfmrh(Face *f1, Face *f2) {
   while (l1->next) {
     l1 = l1->next;
   }
-  
   linkafter(l1, l2);
   free(f2);
+}
+
+void sweep() {
+
 }

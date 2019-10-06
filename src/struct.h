@@ -47,13 +47,12 @@ public:
       return false;
     return true;
   }
-  ostream &operator<<(ostream &o) {
-    o << _id-1;
+  friend ostream &operator<<(ostream &o, const Vertex *v) {
+    o << v->_id - 1;
     // o << "(" << v[0] << "," << v[1] << "," << v[2] << ")";
     return o;
   }
 };
-
 
 class Halfedge {
 public:
@@ -69,11 +68,12 @@ public:
   Halfedge *getPrev() { return prev; }
   Vertex *getv1() { return v1; }
   Vertex *getv2() { return v2; }
-  ostream &operator<<(ostream &o) {
+  friend ostream &operator<<(ostream &o, const Halfedge *he) {
     o << "(";
-    v1->operator<<(o);
+    o << he->v1;
     o << ",";
-    v2->operator<<(o) << ")";
+    o << he->v2;
+    o << ")";
     return o;
   }
 };
@@ -88,15 +88,15 @@ public:
   Loop *getPrev() { return prev; }
   Face *getFace() { return lface; }
   Halfedge *getEdge() { return ledge; }
-  ostream &operator<<(ostream &o) {
-    cout<<"\t";
-    ledge->operator<<(o);
-    Halfedge *p = ledge->next;
-    while (p && p != ledge) {
-      p->operator<<(o);
+  friend ostream &operator<<(ostream &o, const Loop *l) {
+    o << "\t";
+    o << l->ledge;
+    Halfedge *p = l->ledge->next;
+    while (p && p != l->ledge) {
+      o << p;
       p = p->next;
     }
-    cout<<endl;
+    cout << endl;
     return o;
   }
 };
@@ -111,16 +111,16 @@ public:
   Face *getPrev() { return prev; }
   Solids *getSolid() { return fsolid; }
   Loop *getLoop() { return floop; }
-  ostream &operator<<(ostream &o) {
+  friend ostream &operator<<(ostream &o, const Face *f) {
     static int i = 0;
-    cout<<"Face:"<<i++<<endl;
-    floop->operator<<(o);
-    Loop *p = floop->next;
-    while (p && p != floop) {
-      p->operator<<(o);
+    o << "Face:" << i++ << endl;
+    o << f->floop;
+    Loop *p = f->floop->next;
+    while (p && p != f->floop) {
+      o << p;
       p = p->next;
     }
-    cout<<endl;
+    cout << endl;
     return o;
   }
 };
@@ -133,18 +133,16 @@ public:
   Solids *getNext() { return next; }
   Solids *getPrev() { return prev; }
   Face *getFace() { return sface; }
-  ostream &operator<<(ostream &o) {
-    sface->operator<<(o);
-    Face *p = sface->next;
-    while (p && p != sface) {
-      p->operator<<(o);
+  Solids *mvfs();
+  friend std::ostream &operator<<(std::ostream &o, const Solids *sl) {
+    o << sl->sface;
+    Face *p = sl->sface->next;
+    while (p && p != sl->sface) {
+      o << p;
       p = p->next;
     }
-
     return o;
   }
-
-  Solids *mvfs();
 };
 
 #endif
