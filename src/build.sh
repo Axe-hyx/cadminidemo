@@ -1,0 +1,1 @@
+bear make && ../bin/tessellation
