@@ -87,11 +87,24 @@ void construct_cube() {
   mef(lp7, v13, v14, f9, f8);
   mef(lp7, v14, v15, f10, f9);
   kfmrh(f1, f10);
-  cout<<s;
+  cout<<s<<endl;
   return;
 }
 int main() {
   construct_cube();
-  //test_2dcube();
+  Face *f = s->sface;
+  do {
+    f = f->next;
+    Loop *l = f->floop;
+    do {
+      Halfedge *he = l->ledge;
+      do {
+        Vertex *v1 = he->getv1();
+        Vertex *v2 = he->getv2();
+        he = he->next;
+      }while(he && he!=l->ledge);
+      l = l->next;
+    }while(l && l!=f->floop);
+  }while(f && f != s->sface);
   return 0;
 }

@@ -55,6 +55,7 @@ void mef(Loop *l, Vertex &v1, Vertex &v2, Face *&nface, Face *prevface) {
   mkpair(nne, npe, v1, v2);
   nface = new Face();
   Loop *nl = new Loop();
+  nface->fsolid = prevface->fsolid;
   nface->floop = nl;
   nl->lface = nface;
 
@@ -130,6 +131,7 @@ void mef(Loop *l, Vertex &v1, Vertex &v2, Face *&nface, Face *prevface) {
   // l->operator<<(cout) << "FACE" << endl;
   // nl->operator<<(cout) << "FACE" << endl;
   linkafter(prevface, nface);
+  linkafter(nface, prevface->fsolid->sface);
 }
 
 // @param v1 outer loop, v2 inner loop, nloop no face
@@ -157,19 +159,23 @@ void kemr(Loop *l, Vertex &v1, Vertex &v2, Loop *&nloop, Loop *innerloop) {
   linkafter(v2in, v2out);
 
   nloop = new Loop();
+  nloop->lface = l->lface;
   l->ledge = v1in;
   nloop->ledge = v2in;
   linkafter(l, nloop);
+  linkafter(nloop, l->lface->floop);
 }
 
 void kfmrh(Face *f1, Face *f2) {
-  Loop *l1 = f1->getLoop(), *l2 = f2->getLoop();
-  f2->prev->next = nullptr;
-  while (l1->next) {
-    l1 = l1->next;
+
+  Loop *p = f1->getLoop();
+  Loop *l2 = f2->getLoop();
+  while (p->next) {
+    p = p->next; 
   }
-  linkafter(l1, l2);
-  free(f2);
+  linkafter(p, l2);
+  f2->prev->next = f1->fsolid->sface;
+  delete(f2);
 }
 
 void sweep() {

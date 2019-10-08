@@ -83,7 +83,7 @@ public:
   Loop *next, *prev;
   Halfedge *ledge;
   Face *lface;
-  Loop() {}
+  Loop();
   Loop *getNext() { return next; }
   Loop *getPrev() { return prev; }
   Face *getFace() { return lface; }
