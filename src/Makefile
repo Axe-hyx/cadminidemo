@@ -11,7 +11,7 @@ AR = ar
 LD = g++
 WINDRES = windres
 
-INC =
+INC = operator.h struct.h
 CFLAGS = -O2 -Wall
 RESINC = 
 LIBDIR = 
@@ -29,7 +29,7 @@ OBJDIR_DEFAULT = objs
 DEP_DEFAULT = 
 OUT_DEFAULT = ../bin/tessellation
 
-OBJ_DEFAULT = $(OBJDIR_DEFAULT)/main.o
+OBJ_DEFAULT = $(OBJDIR_DEFAULT)/operator.o  $(OBJDIR_DEFAULT)/Solids.o $(OBJDIR_DEFAULT)/main.o $(OBJDIR_DEFAULT)/Face.o $(OBJDIR_DEFAULT)/Loop.o 	 
 
 all: default
 
@@ -46,9 +46,25 @@ default: before_default out_default after_default
 out_default: before_default $(OBJ_DEFAULT) $(DEP_DEFAULT)
 	$(LD) $(LIBDIR_DEFAULT) -o $(OUT_DEFAULT) $(OBJ_DEFAULT)  $(LDFLAGS_DEFAULT) $(LIB_DEFAULT)
 
-$(OBJDIR_DEFAULT)/main.o: main.cpp
-	$(CXX) $(CFLAGS_DEFAULT) $(INC_DEFAULT) -c main.cpp -o $(OBJDIR_DEFAULT)/main.o
 
+$(OBJDIR_DEFAULT)/Face.o: Face.cpp $(INC_DEFAULT) 
+	$(CXX) $(CFLAGS_DEFAULT) -c Face.cpp -o $(OBJDIR_DEFAULT)/Face.o
+
+$(OBJDIR_DEFAULT)/Loop.o: Loop.cpp $(INC_DEFAULT) 
+	$(CXX) $(CFLAGS_DEFAULT) -c Loop.cpp -o $(OBJDIR_DEFAULT)/Loop.o
+
+$(OBJDIR_DEFAULT)/Solids.o: Solids.cpp $(INC_DEFAULT) struct.h
+	$(CXX) $(CFLAGS_DEFAULT) -c Solids.cpp -o $(OBJDIR_DEFAULT)/Solids.o
+
+$(OBJDIR_DEFAULT)/struct.o: struct.cpp $(INC_DEFAULT)
+	$(CXX) $(CFLAGS_DEFAULT)  -c struct.cpp -o $(OBJDIR_DEFAULT)/struct.o
+
+$(OBJDIR_DEFAULT)/operator.o: operator.cpp $(INC_DEFAULT) struct.h
+	$(CXX) $(CFLAGS_DEFAULT)  -c operator.cpp -o $(OBJDIR_DEFAULT)/operator.o
+
+
+$(OBJDIR_DEFAULT)/main.o: main.cpp $(INC_DEFAULT)
+	$(CXX) $(CFLAGS_DEFAULT)  -c main.cpp -o $(OBJDIR_DEFAULT)/main.o
 clean_default: 
 	rm -f $(OBJ_DEFAULT) $(OUT_DEFAULT)
 	rm -rf $(OBJDIR_DEFAULT)
