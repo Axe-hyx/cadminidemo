@@ -163,16 +163,17 @@ void kemr(Loop *l, Vertex &v1, Vertex &v2, Loop *&nloop, Loop *innerloop) {
   l->ledge = v1in;
   nloop->ledge = v2in;
   linkafter(l, nloop);
-  linkafter(nloop, l->lface->floop);
 }
 
+// Face 1 2 
 void kfmrh(Face *f1, Face *f2) {
-  Loop *p = f2->getLoop();
-  Loop *l1 = f1->getLoop(), *l2 = f2->getLoop();
-  Loop *l1t = l1->prev;
-  Loop *l2t = l2->prev;
-  linkafter(l2t, l1);
-  linkafter(l1t, l2);
+
+  Loop  *l2 = f2->getLoop();
+  Loop *p = f1->getLoop();
+  while (p->next) {
+    p = p->next;
+  }
+  linkafter(p, l2);
   f2->prev->next = f1->fsolid->sface;
   delete(f2);
 }

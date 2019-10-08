@@ -1,37 +1,38 @@
+#include "operator.h"
+#include <GL/glut.h>
+#include <sstream>
 #include <stdio.h>
 #include <stdlib.h>
-#include <GL/glut.h>
-#include "operator.h"
 
 #ifndef CALLBACK
-#define  CALLBACK
-#endif 
+#define CALLBACK
+#endif
 bool mouseLeftDown;
 bool mouseRightDown;
 float mouseX, mouseY;
-float cameraDistance;
+float cameraDistance = -20;
 float cameraAngleX;
 float cameraAngleY;
 Face *f0, *f1, *f2, *f3, *f4, *f5, *f6, *f7, *f8, *f9, *f10;
 Solids *s;
-Vertex v0(0, 0, 0);
-Vertex v1(3, 0, 0);
-Vertex v2(3, 3, 0);
-Vertex v3(0, 3, 0);
-Vertex v4(0, 0, 3);
-Vertex v5(3, 0, 3);
-Vertex v6(3, 3, 3);
-Vertex v7(0, 3, 3);
+Vertex v0(-10, -10, 0);
+Vertex v1(-10, 10, 0);
+Vertex v2(10, 10, 0);
+Vertex v3(10, -10, 0);
+Vertex v4(-10, -10, 20);
+Vertex v5(-10, 10, 20);
+Vertex v6(10, 10, 20);
+Vertex v7(10, -10, 20);
 
-Vertex v8(1, 1, 3); // 4
-Vertex v9(2, 1, 3);
-Vertex v10(2, 2, 3);
-Vertex v11(1, 2, 3);
+Vertex v8(-5, -5, 20); // 4
+Vertex v9(-5, 5, 20);
+Vertex v10(5, 5, 20);
+Vertex v11(5, -5, 20);
 
-Vertex v12(1, 1, 0);
-Vertex v13(2, 1, 0);
-Vertex v14(2, 2, 0);
-Vertex v15(1, 2, 0);
+Vertex v12(-5, -5, 0);
+Vertex v13(-5, 5, 0);
+Vertex v14(5, 5, 0);
+Vertex v15(5, -5, 0);
 
 Loop *lp0, *lp1, *lp2, *lp3, *lp4, *lp5, *lp6, *lp7;
 
@@ -98,125 +99,124 @@ void construct_cube() {
   mef(lp7, v12, v13, f8, f7);
   mef(lp7, v13, v14, f9, f8);
   mef(lp7, v14, v15, f10, f9);
-  kfmrh(f1, f10);
-  // cout<<s;
+  kfmrh(f1, f6);
+  linkafter(f5, f7);
   return;
 }
-void mouseCB(int button, int state, int x, int y)
+////////debug
+stringstream ss;
+void CALLBACK tessVertexCB2(const GLvoid *data)
+
 {
+
+  // cast back to double type
+
+  const GLdouble *ptr = (const GLdouble *)data;
+
+  glColor3dv(ptr + 3);
+
+  glVertex3dv(ptr);
+
+  // DEBUG //
+
+  ss << "  glColor3d(" << *(ptr + 3) << ", " << *(ptr + 4) << ", " << *(ptr + 5)
+     << ");\n";
+
+  ss << "  glVertex3d(" << *ptr << ", " << *(ptr + 1) << ", " << *(ptr + 2)
+     << ");\n";
+}
+////////
+void mouseCB(int button, int state, int x, int y) {
+  mouseX = x;
+  mouseY = y;
+
+  if (button == GLUT_LEFT_BUTTON) {
+    if (state == GLUT_DOWN) {
+      mouseLeftDown = true;
+    } else if (state == GLUT_UP)
+      mouseLeftDown = false;
+  }
+
+  else if (button == GLUT_RIGHT_BUTTON) {
+    if (state == GLUT_DOWN) {
+      mouseRightDown = true;
+    } else if (state == GLUT_UP)
+      mouseRightDown = false;
+  }
+}
+
+void mouseMotionCB(int x, int y) {
+  if (mouseLeftDown) {
+    cameraAngleY += (x - mouseX) ;
+    cameraAngleX += (y - mouseY) ;
     mouseX = x;
     mouseY = y;
+  }
+  if (mouseRightDown) {
+    cameraDistance -= (y - mouseY) * 0.2f;
+    mouseY = y;
+  }
 
-    if(button == GLUT_LEFT_BUTTON)
-    {
-        if(state == GLUT_DOWN)
-        {
-            mouseLeftDown = true;
-        }
-        else if(state == GLUT_UP)
-            mouseLeftDown = false;
-    }
-
-    else if(button == GLUT_RIGHT_BUTTON)
-    {
-        if(state == GLUT_DOWN)
-        {
-            mouseRightDown = true;
-        }
-        else if(state == GLUT_UP)
-            mouseRightDown = false;
-    }
+  glutPostRedisplay();
 }
+GLdouble quad[12][3] = {{5, 5, 0},    {15, 5, 0},   {15, -5, 0},  {5, -5, 0},
+                        {0, 5, 0},    {-15, 10, 0}, {-5, -10, 0}, {-10, 5, 0},
+                        {-0.5, 1, 0}, {-0.5, 2, 0}, {0.5, 2, 0},  {0.5, 1, 0}};
+void myIdle(void) { glutPostRedisplay(); }
 
-void mouseMotionCB(int x, int y)
-{
-    if(mouseLeftDown)
-    {
-        cameraAngleY += (x - mouseX);
-        cameraAngleX += (y - mouseY);
-        mouseX = x;
-        mouseY = y;
-    }
-    if(mouseRightDown)
-    {
-        cameraDistance += (y - mouseY) * 0.2f;
-        mouseY = y;
-    }
-
-    glutPostRedisplay();
-}
-GLdouble quad[12][3] = { {5,5,0}, {15,5,0}, {15,-5,0}, { 5,-5,0},
-{0,5,0}, {-15,10,0}, {-5,-10,0}, { -10,5,0}
-, {-0.5,1,0}, {-0.5,2,0}, {0.5,2,0}, { 0.5,1,0} }; 
-void myIdle(void) 
-{
-	glutPostRedisplay();
-}
- 
 //------------------------------------------------------------	OnDraw()
 //
-void CALLBACK PolyLine3DBegin(GLenum type)
-{
-	glBegin(type);
+void CALLBACK PolyLine3DBegin(GLenum type) { glBegin(type); }
+
+void CALLBACK PolyLine3DVertex(GLdouble *vertex) {
+  const GLdouble *pointer;
+  pointer = (GLdouble *)vertex;
+  glColor3d(1.0, 0, 0); //在此设置颜色
+  glVertex3dv(pointer);
+  GLdouble *ptr = (GLdouble *)vertex;
+  ss << "  glVertex3d(" << *ptr << ", " << *(ptr + 1) << ", " << *(ptr + 2)
+     << ");\n";
 }
- 
-void CALLBACK PolyLine3DVertex ( GLdouble * vertex)
-{
-	const GLdouble *pointer;
-	pointer = (GLdouble *) vertex;
-	glColor3d(1.0,0,0);//在此设置颜色
-	glVertex3dv(pointer);
+
+void CALLBACK PolyLine3DEnd() { glEnd(); }
+GLUtesselator *tesser() {
+  GLUtesselator *tess;
+  tess = gluNewTess();
+  gluTessCallback(tess, GLU_TESS_BEGIN, (void(CALLBACK *)()) & PolyLine3DBegin);
+  gluTessCallback(tess, GLU_TESS_VERTEX,
+                  (void(CALLBACK *)()) & PolyLine3DVertex);
+  gluTessCallback(tess, GLU_TESS_END, (void(CALLBACK *)()) & PolyLine3DEnd);
+  return tess;
 }
- 
-void CALLBACK PolyLine3DEnd()
-{
-	glEnd();
-}
-GLUtesselator* tesser()
-{
-	GLUtesselator * tess;
-	tess=gluNewTess();
-	gluTessCallback(tess,GLU_TESS_BEGIN,(void (CALLBACK*)())&PolyLine3DBegin); 
-	gluTessCallback(tess,GLU_TESS_VERTEX,(void (CALLBACK*)())&PolyLine3DVertex); 
-	gluTessCallback(tess,GLU_TESS_END,(void (CALLBACK*)())&PolyLine3DEnd);
-	return tess;
-}
- 
+
 /////////////////////////////////////////////////////////////////////////////////
- 
- 
- 
- 
+
 void OnDraw() {
- glTranslatef(0, 0, cameraDistance);
-glRotatef(cameraAngleX, 1, 0, 0);
-glRotatef(cameraAngleY, 0, 1, 0);
-	glClear(GL_STENCIL_BUFFER_BIT);
- 
-	GLUtesselator* tess = tesser();
-	if (!tess) return;
-	gluTessBeginPolygon(tess,NULL);
- 
-	// gluTessBeginContour(tess);
-	// for(int i=0;i<4;i++)
-	// gluTessVertex(tess, quad[i], quad[i]);
-	// gluTessEndContour(tess);
- 
-	// gluTessBeginContour(tess);
-	// for(int i=4;i<8;i++)
-	// 	gluTessVertex(tess, quad[i], quad[i]);
-	// gluTessEndContour(tess);
- 
-Face * f = s->sface;
+  glClear(GL_COLOR_BUFFER_BIT);
+  glClear(GL_STENCIL_BUFFER_BIT);
+  glPushMatrix();
+  glTranslatef(0, 0, cameraDistance);
+  glRotatef(cameraAngleX, 1, 0, 0);
+  glRotatef(cameraAngleY, 0, 1, 0);
+
+  GLUtesselator *tess = tesser();
+  if (!tess)
+    return;
+  //gluTessBeginContour(tess);
+  //for (int i = 4; i < 8; i++)
+    //  gluTessVertex(tess, quad[i], quad[i]);
+  //gluTessEndContour(tess);
+
+  Face *f = s->sface;
   do {
+    gluTessBeginPolygon(tess, NULL);
     Loop *l = f->floop;
-    cout<<l<<endl;
+    cout<<f<<endl;
     do {
       gluTessBeginContour(tess);
       Halfedge *he = l->ledge;
       do {
         Vertex *v1 = he->getv1();
-        Vertex *v2 = he->getv2();
         gluTessVertex(tess, v1->v, v1->v);
         he = he->next;
       } while (he && he != l->ledge);
@@ -224,85 +224,89 @@ Face * f = s->sface;
       gluTessEndContour(tess);
     } while (l && l != f->floop);
     f = f->next;
-  }while(f!=s->sface);
-
-	gluTessEndPolygon(tess);
-	glutSwapBuffers();
+    gluTessEndPolygon(tess);
+  } while (f != s->sface);
+  cout << endl;
+  cout << "===============\n";
+  cout << ss.str().c_str() << endl;
+  ss.str(""); // clear string buffer
+  glPopMatrix();
+  glutSwapBuffers();
 }
- 
+
 //------------------------------------------------------------	OnInit()
 //
-void OnInit() 
-{
-	//glClearColor(1,1,1,0);
+void OnInit() {
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  glEnable(GL_DEPTH_TEST);
+  // glClearColor(1,1,1,0);
 }
- 
+
 //------------------------------------------------------------	OnExit()
 //
-void OnExit() {
-}
- 
- 
+void OnExit() {}
+
 //------------------------------------------------------------	OnReshape()
 //
-void OnReshape(int w, int h)
-{
-	// prevents division by zero when minimising window
-	if (h==0)
-		h=1;
- 
-	// set the drawable region of the window
-	glViewport(0,0,w,h);
- 
-	// set up the projection matrix
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
- 
-	// just use a perspective projection
-	//gluPerspective(45,(float)w/h,0.1,100);
-	if(w<=h)
-		glOrtho(-20.0,20.0,-20.0*(GLfloat)h/(GLfloat)w,20.0*(GLfloat)h/(GLfloat)w,0.0,100.0);
-	else
-		glOrtho(-20.0,20.0,-20.0*(GLfloat)h/(GLfloat)w,20.0*(GLfloat)h/(GLfloat)w,0.0,100.0);
- 
-	// go back to modelview matrix so we can move the objects about
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+void OnReshape(int w, int h) {
+  // prevents division by zero when minimising window
+  if (h == 0)
+    h = 1;
+
+  // set the drawable region of the window
+  glViewport(0, 0, w, h);
+
+  // set up the projection matrix
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+
+  // just use a perspective projection
+  // gluPerspective(45,(float)w/h,0.1,100);
+  if (w <= h)
+    glOrtho(-20.0, 20.0, -20.0 * (GLfloat)h / (GLfloat)w,
+            20.0 * (GLfloat)h / (GLfloat)w, 0.0, 100.0);
+  else
+    glOrtho(-20.0, 20.0, -20.0 * (GLfloat)h / (GLfloat)w,
+            20.0 * (GLfloat)h / (GLfloat)w, 0.0, 100.0);
+
+  // go back to modelview matrix so we can move the objects about
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
 }
- 
+
 //------------------------------------------------------------	main()
 //
-int main(int argc,char** argv) {
- construct_cube();
-	// initialise glut
-	glutInit(&argc,argv);
- 
-	// request a depth buffer, RGBA display mode, and we want double buffering
-	glutInitDisplayMode(GLUT_RGBA|GLUT_DOUBLE);
- 
-	// set the initial window size
-	glutInitWindowSize(480,480);
- 
-	// create the window
-	glutCreateWindow("fill tess");
- 
-	// run our custom initialisation
-	OnInit();
+int main(int argc, char **argv) {
+  construct_cube();
+  // initialise glut
+  glutInit(&argc, argv);
+
+  // request a depth buffer, RGBA display mode, and we want double buffering
+  glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
+
+  // set the initial window size
+  glutInitWindowSize(1080, 1080);
+
+  // create the window
+  glutCreateWindow("fill tess");
+
+  // run our custom initialisation
+  OnInit();
   glutMouseFunc(mouseCB);
-glutMotionFunc(mouseMotionCB);
- 
-	// set the function to use to draw our scene
-	glutDisplayFunc(OnDraw);
- 
-	// set the function to handle changes in screen size
-	glutReshapeFunc(OnReshape);
-	//	glutIdleFunc(&myIdle);
- 
-	// set the function to be called when we exit
-	atexit(OnExit);
- 
-	// this function runs a while loop to keep the program running.
-	glutMainLoop();
- 
-	return 0;
+  glutMotionFunc(mouseMotionCB);
+
+  // set the function to use to draw our scene
+  glutDisplayFunc(OnDraw);
+
+  // set the function to handle changes in screen size
+  glutReshapeFunc(OnReshape);
+  //	glutIdleFunc(&myIdle);
+
+  // set the function to be called when we exit
+  atexit(OnExit);
+
+  // this function runs a while loop to keep the program running.
+  glutMainLoop();
+
+  return 0;
 }
