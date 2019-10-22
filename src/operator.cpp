@@ -208,3 +208,15 @@ void sweep(Face *face, float d, Vertex vec) {
     fl = fl->next;
   } while (fl && fl != face->getLoop());
 }
+
+void join(Face *nface, Face *pface) {
+    Loop *p = pface->floop;
+    Loop *ntail = nface->floop;
+    while(p && p!=pface->floop)p = p->next;
+    while (ntail && ntail != nface->floop)
+      ntail = ntail->next;
+    linkafter(p,nface->floop);
+    linkafter(ntail, pface->floop);
+    linkafter(pface, nface->next);
+    delete(nface);
+}

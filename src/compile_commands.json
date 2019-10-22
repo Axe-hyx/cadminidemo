@@ -6,10 +6,10 @@
             "-O2",
             "-Wall",
             "-o",
-            "objs/operator.o",
-            "operator.cpp"
+            "objs/main.o",
+            "main.cpp"
         ],
         "directory": "/home/switch/work/tessellation/src",
-        "file": "operator.cpp"
+        "file": "main.cpp"
     }
 ]

@@ -277,13 +277,21 @@ void OnReshape(int w, int h) {
 //------------------------------------------------------------	main()
 //
 void construct_sweep() {
+
   mvfs(s, v0, lp0);
   f0 = s->sface;
   mev(lp0, v0, v1);
   mev(lp0, v1, v2);
   mev(lp0, v2, v3);
   mef(lp0, v3, v0, f1, f0);
-  sweep(f0, 1, Vertex(0, 0, 20));
+  mev(lp0, v3, v15);
+  mev(lp0, v15, v14);
+  mev(lp0, v14, v13);
+  mev(lp0, v13, v12);
+  mef(lp0, v12, v15, f2, f1);
+  kemr(lp0, v3, v15, lp1, lp0);
+  join(f2,f1);
+  sweep(f1, 1, Vertex(0, 0, 20));
 }
 void construct_qube() {
   mvfs(s, v0, lp0);
