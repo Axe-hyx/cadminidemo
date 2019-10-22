@@ -1,6 +1,9 @@
 #include "operator.h"
 #include "cstring"
 #include "struct.h"
+#include <iostream>
+#include <vector>
+using namespace std;
 void mvfs(Solids *&s, Vertex &v, Loop *&nloop) {
   s = new Solids();
   Face *nf = new Face();
@@ -165,19 +168,43 @@ void kemr(Loop *l, Vertex &v1, Vertex &v2, Loop *&nloop, Loop *innerloop) {
   linkafter(l, nloop);
 }
 
-// Face 1 2 
+// Face 1 2
 void kfmrh(Face *f1, Face *f2) {
 
-  Loop  *l2 = f2->getLoop();
+  Loop *l2 = f2->getLoop();
   Loop *p = f1->getLoop();
   while (p->next) {
     p = p->next;
   }
   linkafter(p, l2);
   f2->prev->next = f1->fsolid->sface;
-  delete(f2);
+  delete (f2);
 }
-
-void sweep() {
-
+void sweep(Face *face, float d, Vertex vec) {
+  Face *preface = face->next;
+  Loop *fl = face->floop;
+  do {
+    Halfedge *he = fl->ledge, *ne;
+    vector<Halfedge *> list;
+    vector<Vertex *> vecs;
+    do {
+      list.push_back(he);
+      he = he->next;
+    } while (he && he != fl->ledge);
+    for (int i = 0; i < list.size(); ++i) {
+      Halfedge *he = list[i];
+      Vertex *st = he->getv1();
+      Vertex *st_up = new Vertex(*st + vec * d);
+      mev(fl, *st, *st_up);
+      vecs.push_back(st_up);
+    }
+    for (int i = 0; i < vecs.size(); ++i) {
+      Face *nface = new Face();
+      Vertex *v1 = vecs[i];
+      Vertex *v2 = vecs[(i+1) %vecs.size()];
+      mef(fl, *v2, *v1, nface, preface);
+      preface = nface;
+    }
+    fl = fl->next;
+  } while (fl && fl != face->getLoop());
 }

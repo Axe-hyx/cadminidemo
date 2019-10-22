@@ -147,8 +147,8 @@ void mouseCB(int button, int state, int x, int y) {
 
 void mouseMotionCB(int x, int y) {
   if (mouseLeftDown) {
-    cameraAngleY += (x - mouseX) ;
-    cameraAngleX += (y - mouseY) ;
+    cameraAngleY += (x - mouseX);
+    cameraAngleX += (y - mouseY);
     mouseX = x;
     mouseY = y;
   }
@@ -202,16 +202,16 @@ void OnDraw() {
   GLUtesselator *tess = tesser();
   if (!tess)
     return;
-  //gluTessBeginContour(tess);
-  //for (int i = 4; i < 8; i++)
-    //  gluTessVertex(tess, quad[i], quad[i]);
-  //gluTessEndContour(tess);
+  // gluTessBeginContour(tess);
+  // for (int i = 4; i < 8; i++)
+  //  gluTessVertex(tess, quad[i], quad[i]);
+  // gluTessEndContour(tess);
 
   Face *f = s->sface;
   do {
     gluTessBeginPolygon(tess, NULL);
     Loop *l = f->floop;
-    cout<<f<<endl;
+    cout << f << endl;
     do {
       gluTessBeginContour(tess);
       Halfedge *he = l->ledge;
@@ -276,8 +276,27 @@ void OnReshape(int w, int h) {
 
 //------------------------------------------------------------	main()
 //
+void construct_sweep() {
+  mvfs(s, v0, lp0);
+  f0 = s->sface;
+  mev(lp0, v0, v1);
+  mev(lp0, v1, v2);
+  mev(lp0, v2, v3);
+  mef(lp0, v3, v0, f1, f0);
+  sweep(f0, 1, Vertex(0, 0, 20));
+}
+void construct_qube() {
+  mvfs(s, v0, lp0);
+  f0 = s->sface;
+  mev(lp0, v0, v1);
+  mev(lp0, v1, v2);
+  mev(lp0, v2, v3);
+  mef(lp0, v3, v0, f1, f0);
+}
+int Vertex::i = 0;
 int main(int argc, char **argv) {
-  construct_cube();
+  //construct_cube();
+  construct_sweep();
   // initialise glut
   glutInit(&argc, argv);
 

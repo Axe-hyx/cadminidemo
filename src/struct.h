@@ -19,8 +19,8 @@ public:
   Vertex *next, *prev;
   int _id;
 
+  static int i;
   Vertex(float _x, float _y, float _z) : next(nullptr), prev(nullptr) {
-    static int i = 0;
     v[0] = _x;
     v[1] = _y;
     v[2] = _z;
@@ -30,6 +30,7 @@ public:
     v[0] = ve.v[0];
     v[1] = ve.v[1];
     v[2] = ve.v[2];
+    _id = ++i;
   }
   float operator[](int i) { return v[i]; }
   float x() { return v[0]; }
@@ -48,8 +49,12 @@ public:
       return false;
     return true;
   }
+  Vertex operator*(float d) { return Vertex(v[0] * d, v[1] * d, v[2] * d); }
+  Vertex operator+(const Vertex &vec) {
+    return Vertex(v[0] + vec.v[0], v[1] + vec.v[1], v[2] + vec.v[2]);
+  }
   friend ostream &operator<<(ostream &o, const Vertex *v) {
-     o << v->_id - 1;
+    o << v->_id - 1;
     //o << "(" << v->v[0] << "," << v->v[1] << "," << v->v[2] << ")";
     return o;
   }
@@ -70,11 +75,11 @@ public:
   Vertex *getv1() { return v1; }
   Vertex *getv2() { return v2; }
   friend ostream &operator<<(ostream &o, const Halfedge *he) {
-    o << "(";
+    o << "[";
     o << he->v1;
     o << ",";
     o << he->v2;
-    o << ")";
+    o << "]"<<" ";
     return o;
   }
 };
@@ -145,5 +150,4 @@ public:
     return o;
   }
 };
-
 #endif
