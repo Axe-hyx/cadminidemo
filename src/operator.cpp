@@ -138,7 +138,7 @@ void mef(Loop *l, Vertex &v1, Vertex &v2, Face *&nface, Face *prevface) {
 }
 
 // @param v1 outer loop, v2 inner loop, nloop no face
-void kemr(Loop *l, Vertex &v1, Vertex &v2, Loop *&nloop, Loop *innerloop) {
+void kemr(Loop *l, Vertex &v1, Vertex &v2, Loop *&nloop, Loop *preloop) {
   Halfedge *v1in, *v1out;
   Halfedge *v2in, *v2out;
   Halfedge *v12, *v21;
@@ -165,7 +165,7 @@ void kemr(Loop *l, Vertex &v1, Vertex &v2, Loop *&nloop, Loop *innerloop) {
   nloop->lface = l->lface;
   l->ledge = v1in;
   nloop->ledge = v2in;
-  linkafter(l, nloop);
+  linkafter(preloop, nloop);
 }
 
 // Face 1 2
@@ -210,11 +210,16 @@ void sweep(Face *face, float d, Vertex vec) {
 }
 
 void join(Face *nface, Face *pface) {
-    Loop *p = pface->floop;
-    Loop *ntail = nface->floop;
-    while(p && p!=pface->floop)p = p->next;
-    while (ntail && ntail != nface->floop)
-      ntail = ntail->next;
+  Loop *p = pface->floop, *pn = pface->floop->next;
+  Loop *ntail = nface->floop, *nn = nface->floop->next;
+    while (pn && pn!=pface->floop) {
+      p = pn;
+      pn = pn->next;
+    }
+    while (nn && nn != nface->floop) {
+      ntail = nn;
+      nn = nn->next;
+    }
     linkafter(p,nface->floop);
     linkafter(ntail, pface->floop);
     linkafter(pface, nface->next);

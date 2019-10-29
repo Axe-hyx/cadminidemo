@@ -34,6 +34,20 @@ Vertex v13(-5, 5, 0);
 Vertex v14(5, 5, 0);
 Vertex v15(5, -5, 0);
 
+Vertex v20(-10, -20, 0);
+Vertex v21(10, -20, 0);
+Vertex v22(10, 20, 0);
+Vertex v23(-10, 20, 0);
+Vertex v24(-5, -15, 0);
+Vertex v25(5, -15, 0);
+Vertex v26(5, -5, 0);
+Vertex v27(-5, -5, 0);
+
+Vertex v28(-5, 5, 0);
+Vertex v29(5, 5, 0);
+Vertex v30(5, 15, 0);
+Vertex v31(-5, 15, 0);
+
 Loop *lp0, *lp1, *lp2, *lp3, *lp4, *lp5, *lp6, *lp7;
 
 void test_2dcube() {
@@ -276,6 +290,35 @@ void OnReshape(int w, int h) {
 
 //------------------------------------------------------------	main()
 //
+void multiple_hole_sweep() {
+
+  mvfs(s, v20, lp0);
+  f0 = s->sface;
+  mev(lp0, v20, v21);
+  mev(lp0, v21, v22);
+  mev(lp0, v22, v23);
+  mef(lp0, v23, v20, f1, f0);
+
+  mev(lp0, v20, v24);
+  mev(lp0, v24, v25);
+  mev(lp0, v25, v26);
+  mev(lp0, v26, v27);
+  mef(lp0, v24, v27, f2, f1);
+  kemr(lp0, v20, v24, lp1, lp0);
+  join(f2, f1);
+
+  mev(lp0, v23, v31);
+  mev(lp0, v31, v28);
+  mev(lp0, v28, v29);
+  mev(lp0, v29, v30);
+  mef(lp0, v30, v31, f2, f1);
+  join(f2, f1);
+  kemr(lp0, v23, v31, lp5, lp1);
+  cout << lp0 << endl;
+  cout << lp1 << endl;
+  sweep(f1, 1, Vertex(0, 0, 20));
+}
+
 void construct_sweep() {
 
   mvfs(s, v0, lp0);
@@ -290,7 +333,7 @@ void construct_sweep() {
   mev(lp0, v13, v12);
   mef(lp0, v12, v15, f2, f1);
   kemr(lp0, v3, v15, lp1, lp0);
-  join(f2,f1);
+  join(f2, f1);
   sweep(f1, 1, Vertex(0, 0, 20));
 }
 void construct_qube() {
@@ -303,8 +346,8 @@ void construct_qube() {
 }
 int Vertex::i = 0;
 int main(int argc, char **argv) {
-  //construct_cube();
-  construct_sweep();
+  // construct_cube();
+  multiple_hole_sweep();
   // initialise glut
   glutInit(&argc, argv);
 
