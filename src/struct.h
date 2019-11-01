@@ -26,6 +26,7 @@ public:
   }
   Vertex() { _id = ++i; }
   Vertex(float _x, float _y, float _z) : next(nullptr), prev(nullptr) {
+    static int i = 0;
     v[0] = _x;
     v[1] = _y;
     v[2] = _z;
@@ -37,7 +38,6 @@ public:
     v[2] = ve.v[2];
     _id = id;
   }
-
   Vertex(const Vertex &ve) : prev(ve.prev), next(ve.next) {
     v[0] = ve.v[0];
     v[1] = ve.v[1];
@@ -172,4 +172,5 @@ public:
     return o;
   }
 };
+
 #endif
