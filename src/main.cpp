@@ -22,8 +22,8 @@ void outward() {
 }
 
 void inward(int i) {
-  int vnum, solidno;
-  cin >> vnum >> solidno;
+  int vnum;
+  cin >> vnum;
   for (int k = 0; k < vnum; ++k) {
     Vertex v;
     cin >> v;
