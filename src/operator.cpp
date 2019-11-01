@@ -53,6 +53,7 @@ void mev(Loop *l, Vertex &v1, Vertex &v2) {
 }
 
 void mef(Loop *l, Vertex &v1, Vertex &v2, Face *&nface, Face *prevface) {
+  Vertex *v0 = l->ledge->getv1();
   int size = 512;
   Halfedge *npe, *nne;
   mkpair(nne, npe, v1, v2);
@@ -116,7 +117,6 @@ void mef(Loop *l, Vertex &v1, Vertex &v2, Face *&nface, Face *prevface) {
   while (*lastv2in->getv2() != v2) {
     lastv2in = lastv2in->prev;
   }
-
   Halfedge *st, *ed;
   st = lastv2in->next;
   ed = earlyv1out->prev;
@@ -126,9 +126,15 @@ void mef(Loop *l, Vertex &v1, Vertex &v2, Face *&nface, Face *prevface) {
   // ed->operator<<(cout) << endl;
   linkafter(ed, nne);
   linkafter(nne, st);
-
   linkafter(lastv2in, npe);
   linkafter(npe, earlyv1out);
+  l->ledge = npe;
+  nl->ledge = nne; // 最简
+  while (npe->getv1() != v0) {
+    if(nne->getv1() == v0) break;
+    npe = npe->next;
+    nne = nne->next;
+  }
   l->ledge = npe;
   nl->ledge = nne; // 最简
   // l->operator<<(cout) << "FACE" << endl;
@@ -139,6 +145,7 @@ void mef(Loop *l, Vertex &v1, Vertex &v2, Face *&nface, Face *prevface) {
 
 // @param v1 outer loop, v2 inner loop, nloop no face
 void kemr(Loop *l, Vertex &v1, Vertex &v2, Loop *&nloop, Loop *preloop) {
+  Vertex *v0 = l->ledge->getv1();
   Halfedge *v1in, *v1out;
   Halfedge *v2in, *v2out;
   Halfedge *v12, *v21;
@@ -163,6 +170,9 @@ void kemr(Loop *l, Vertex &v1, Vertex &v2, Loop *&nloop, Loop *preloop) {
 
   nloop = new Loop();
   nloop->lface = l->lface;
+  // while (v1in->getv1() != v0) {
+  //  v1in = v1in->next;
+  //}
   l->ledge = v1in;
   nloop->ledge = v2in;
   linkafter(preloop, nloop);
@@ -181,12 +191,14 @@ void kfmrh(Face *f1, Face *f2) {
   delete (f2);
 }
 void sweep(Face *face, float d, Vertex vec) {
-  Face *preface = face->next;
+  Face *preface = face;
   Loop *fl = face->floop;
   do {
     Halfedge *he = fl->ledge, *ne;
     vector<Halfedge *> list;
     vector<Vertex *> vecs;
+    list.clear();
+    vecs.clear();
     do {
       list.push_back(he);
       he = he->next;
@@ -194,14 +206,14 @@ void sweep(Face *face, float d, Vertex vec) {
     for (int i = 0; i < list.size(); ++i) {
       Halfedge *he = list[i];
       Vertex *st = he->getv1();
-      Vertex *st_up = new Vertex(*st + vec * d);
+      Vertex *st_up = new Vertex(*st + vec * d, ++Vertex::i);
       mev(fl, *st, *st_up);
       vecs.push_back(st_up);
     }
     for (int i = 0; i < vecs.size(); ++i) {
       Face *nface = new Face();
       Vertex *v1 = vecs[i];
-      Vertex *v2 = vecs[(i+1) %vecs.size()];
+      Vertex *v2 = vecs[(i + 1) % vecs.size()];
       mef(fl, *v2, *v1, nface, preface);
       preface = nface;
     }
@@ -212,16 +224,16 @@ void sweep(Face *face, float d, Vertex vec) {
 void join(Face *nface, Face *pface) {
   Loop *p = pface->floop, *pn = pface->floop->next;
   Loop *ntail = nface->floop, *nn = nface->floop->next;
-    while (pn && pn!=pface->floop) {
-      p = pn;
-      pn = pn->next;
-    }
-    while (nn && nn != nface->floop) {
-      ntail = nn;
-      nn = nn->next;
-    }
-    linkafter(p,nface->floop);
-    linkafter(ntail, pface->floop);
-    linkafter(pface, nface->next);
-    delete(nface);
+  while (pn && pn != pface->floop) {
+    p = pn;
+    pn = pn->next;
+  }
+  while (nn && nn != nface->floop) {
+    ntail = nn;
+    nn = nn->next;
+  }
+  linkafter(p, nface->floop);
+  linkafter(ntail, pface->floop);
+  linkafter(pface, nface->next);
+  delete (nface);
 }

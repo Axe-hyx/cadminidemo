@@ -20,17 +20,30 @@ public:
   int _id;
 
   static int i;
+  friend istream &operator>>(istream &in, Vertex &ver) {
+    in >> ver.v[0] >> ver.v[1] >> ver.v[2];
+    return in;
+  }
+  Vertex() { _id = ++i; }
   Vertex(float _x, float _y, float _z) : next(nullptr), prev(nullptr) {
     v[0] = _x;
     v[1] = _y;
     v[2] = _z;
-    _id = ++i;
+    //_id = ++i;
   }
+  Vertex(const Vertex &ve, int id) : prev(ve.prev), next(ve.next) {
+    v[0] = ve.v[0];
+    v[1] = ve.v[1];
+    v[2] = ve.v[2];
+    _id = id;
+  }
+
   Vertex(const Vertex &ve) : prev(ve.prev), next(ve.next) {
     v[0] = ve.v[0];
     v[1] = ve.v[1];
     v[2] = ve.v[2];
-    _id = ++i;
+    _id = ve._id;
+    //_id = ++i;
   }
   float operator[](int i) { return v[i]; }
   float x() { return v[0]; }
@@ -54,8 +67,8 @@ public:
     return Vertex(v[0] + vec.v[0], v[1] + vec.v[1], v[2] + vec.v[2]);
   }
   friend ostream &operator<<(ostream &o, const Vertex *v) {
-    o << v->_id - 1;
-    //o << "(" << v->v[0] << "," << v->v[1] << "," << v->v[2] << ")";
+    o << v->_id;
+    // o << "(" << v->v[0] << "," << v->v[1] << "," << v->v[2] << ")";
     return o;
   }
 };
@@ -79,7 +92,8 @@ public:
     o << he->v1;
     o << ",";
     o << he->v2;
-    o << "]"<<" ";
+    o << "]"
+      << " ";
     return o;
   }
 };
@@ -117,6 +131,14 @@ public:
   Face *getPrev() { return prev; }
   Solids *getSolid() { return fsolid; }
   Loop *getLoop() { return floop; }
+  Loop *getTail() {
+    Loop *p = floop, *np = floop->next;
+    while ((np != nullptr) && np != floop) {
+      p = np;
+      np = np->next;
+    }
+    return p;
+  }
   friend ostream &operator<<(ostream &o, const Face *f) {
     static int i = 0;
     o << "Face:" << i++ << endl;

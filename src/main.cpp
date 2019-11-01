@@ -4,6 +4,46 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <vector>
+class Factory {
+public:
+  vector<Solids *> s;
+  void Addplane(std::vector<Vertex> &data) {
+    Solids *solid;
+    Loop *firstloop;
+    mvfs(solid, data[0], firstloop);
+    for (int i = 1; i < data.size(); ++i) {
+      mev(firstloop, data[i - 1], data[i]);
+    }
+    Face *nface;
+    mef(firstloop, data[data.size() - 1], data[0], nface, solid->getFace());
+    s.push_back(solid);
+  }
+
+  void AddHole(int n, std::vector<Vertex> &data) {
+    Solids *p = s[n];
+    auto *fout = p->getFace();
+    auto *fin = fout->next;
+    auto *loop = fout->getLoop();
+    mev(loop, *loop->getEdge()->getv1(), data[0]);
+    for (int i = 1; i < data.size(); ++i) {
+      mev(loop, data[i - 1], data[i]); // addr mess
+    }
+    Face *nface;
+    mef(loop, data[data.size() - 1], data[0], nface, fin);
+    Loop *nloop;
+    kemr(loop, *loop->getEdge()->getv1(), data[0], nloop, fout->getTail());
+    join(nface, fin);
+  }
+  void Sweep(int n, float d, const Vertex& t) {
+    Solids *p = s[n];
+    auto *fup = p->getFace();
+    auto *fdown = fup->next;
+    sweep(fdown, d, t);
+  }
+};
+
+Factory fc;
 #ifndef CALLBACK
 #define CALLBACK
 #endif
@@ -220,32 +260,33 @@ void OnDraw() {
   // for (int i = 4; i < 8; i++)
   //  gluTessVertex(tess, quad[i], quad[i]);
   // gluTessEndContour(tess);
-
-  Face *f = s->sface;
-  do {
-    gluTessBeginPolygon(tess, NULL);
-    Loop *l = f->floop;
-    cout << f << endl;
+  for (int i = 0; i < fc.s.size(); ++i) {
+    Face *f = fc.s[0]->sface;
     do {
-      gluTessBeginContour(tess);
-      Halfedge *he = l->ledge;
+      gluTessBeginPolygon(tess, NULL);
+      Loop *l = f->floop;
+      cout << f << endl;
       do {
-        Vertex *v1 = he->getv1();
-        gluTessVertex(tess, v1->v, v1->v);
-        he = he->next;
-      } while (he && he != l->ledge);
-      l = l->next;
-      gluTessEndContour(tess);
-    } while (l && l != f->floop);
-    f = f->next;
-    gluTessEndPolygon(tess);
-  } while (f != s->sface);
-  cout << endl;
-  cout << "===============\n";
-  cout << ss.str().c_str() << endl;
-  ss.str(""); // clear string buffer
-  glPopMatrix();
-  glutSwapBuffers();
+        gluTessBeginContour(tess);
+        Halfedge *he = l->ledge;
+        do {
+          Vertex *v1 = he->getv1();
+          gluTessVertex(tess, v1->v, v1->v);
+          he = he->next;
+        } while (he && he != l->ledge);
+        l = l->next;
+        gluTessEndContour(tess);
+      } while (l && l != f->floop);
+      gluTessEndPolygon(tess);
+      f = f->next;
+    } while (f && f != fc.s[0]->sface);
+    cout << endl;
+    cout << "===============\n";
+    cout << ss.str().c_str() << endl;
+    ss.str(""); // clear string buffer
+    glPopMatrix();
+    glutSwapBuffers();
+  }
 }
 
 //------------------------------------------------------------	OnInit()
@@ -290,35 +331,6 @@ void OnReshape(int w, int h) {
 
 //------------------------------------------------------------	main()
 //
-void multiple_hole_sweep() {
-
-  mvfs(s, v20, lp0);
-  f0 = s->sface;
-  mev(lp0, v20, v21);
-  mev(lp0, v21, v22);
-  mev(lp0, v22, v23);
-  mef(lp0, v23, v20, f1, f0);
-
-  mev(lp0, v20, v24);
-  mev(lp0, v24, v25);
-  mev(lp0, v25, v26);
-  mev(lp0, v26, v27);
-  mef(lp0, v24, v27, f2, f1);
-  kemr(lp0, v20, v24, lp1, lp0);
-  join(f2, f1);
-
-  mev(lp0, v23, v31);
-  mev(lp0, v31, v28);
-  mev(lp0, v28, v29);
-  mev(lp0, v29, v30);
-  mef(lp0, v30, v31, f2, f1);
-  join(f2, f1);
-  kemr(lp0, v23, v31, lp5, lp1);
-  cout << lp0 << endl;
-  cout << lp1 << endl;
-  sweep(f1, 1, Vertex(0, 0, 20));
-}
-
 void construct_sweep() {
 
   mvfs(s, v0, lp0);
@@ -344,10 +356,77 @@ void construct_qube() {
   mev(lp0, v2, v3);
   mef(lp0, v3, v0, f1, f0);
 }
+
+void inner_loop(std::vector<Vertex> &data) {}
+void multiple_hole_sweep() {
+
+  mvfs(s, v20, lp0);
+  f0 = s->sface;
+  mev(lp0, v20, v21);
+  mev(lp0, v21, v22);
+  mev(lp0, v22, v23);
+  mef(lp0, v23, v20, f1, f0);
+
+  mev(lp0, v20, v24);
+
+  mev(lp0, v24, v25);
+  mev(lp0, v25, v26);
+  mev(lp0, v26, v27);
+  mef(lp0, v24, v27, f2, f1);
+
+  kemr(lp0, v20, v24, lp1, lp0);
+  join(f2, f1);
+
+  mev(lp0, v23, v31);
+  mev(lp0, v31, v28);
+  mev(lp0, v28, v29);
+  mev(lp0, v29, v30);
+  mef(lp0, v30, v31, f2, f1);
+  join(f2, f1);
+  kemr(lp0, v23, v31, lp5, lp1);
+  sweep(f1, 1, Vertex(0, 0, 20));
+}
+
+std::vector<std::vector<Vertex>> data;
+void outward() {
+  {
+    int vnum;
+    cin >> vnum;
+    // vector resize 会对齐 无法获取实际元素数量
+    for (int k = 0; k < vnum; ++k) {
+      Vertex v;
+      cin >> v;
+      data[0].push_back(v);
+    }
+    fc.Addplane(data[0]);
+  }
+}
+void inward(int i) {
+  int vnum;
+  cin >> vnum;
+  for (int k = 0; k < vnum; ++k) {
+    Vertex v;
+    cin >> v;
+    data[i + 1].push_back(v);
+  }
+  fc.AddHole(0, data[i + 1]);
+}
+void feeddata() {
+  using dir = Vertex;
+  int loopnum;
+  cin >> loopnum;
+  data.resize(loopnum);
+  outward();
+  for (int i = 0; i < loopnum - 1; ++i) {
+      inward(i);
+  }
+  fc.Sweep(0, 1, dir(0,0,20));
+}
 int Vertex::i = 0;
 int main(int argc, char **argv) {
   // construct_cube();
-  multiple_hole_sweep();
+  feeddata();
+  // multiple_hole_sweep();
   // initialise glut
   glutInit(&argc, argv);
 

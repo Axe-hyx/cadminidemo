@@ -4,7 +4,7 @@
 
 
 WORKDIR = `pwd`
-
+-std=c++11
 CC = gcc
 CXX = g++
 AR = ar
