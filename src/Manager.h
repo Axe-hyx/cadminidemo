@@ -33,6 +33,11 @@ public:
     kemr(loop, *loop->getEdge()->getv1(), data[0], nloop, fout->getTail());
     join(nface, fin);
   }
+  /*
+    @prama n, the id of solid modile;
+    @prama d, travese distance along dir;
+    @prama dir, Vertex specificate direction
+  */
   void Sweep(int n, float d, const Vertex &t) {
     Solids *p = s[n];
     auto *fup = p->getFace();

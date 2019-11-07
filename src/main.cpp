@@ -40,7 +40,9 @@ void feeddata() {
   for (int i = 0; i < loopnum - 1; ++i) {
     inward(i); //处理内环
   }
-  fc.Sweep(0, 1, dir(0, 0, 20));
+  dir dic;
+  cin >>dic;
+  fc.Sweep(0, 1, dic);
 }
 int Vertex::i = 0;
 int main(int argc, char **argv) {
